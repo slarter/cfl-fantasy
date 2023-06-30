@@ -1,0 +1,26 @@
+
+{% extends "team_tracker/base.html" %}
+
+{% block content %}
+    <h2>Standings</h2>
+    <table class="table table-sm">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">Rank</th>
+                <th scope="col">Fantasy Team</th>
+                <th scope="col">CFL Team</th>
+                <th scope="col">Points</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for fantasy_team in fantasy_teams %}
+                <tr>
+                    <th scope="row">{{ forloop.counter }}</th>
+                    <td>{{ fantasy_team.name }}</td>
+                    <td>{{ fantasy_team.cfl_team.name }}</td>
+                    <td>{{ fantasy_team.points }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock content %}

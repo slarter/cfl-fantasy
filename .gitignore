@@ -1,0 +1,12 @@
+# .env file
+.env
+
+# sqlite
+db.sqlite3
+
+# python compiled
+*.pyc
+django.log
+
+# virtual environment
+venv/
