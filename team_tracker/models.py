@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 class CflTeam(models.Model):
     name = models.CharField(max_length=100)
     name_short = models.CharField(max_length=100, default='')
+    abbreviation = models.CharField(max_length=100, default='')
     location = models.CharField(max_length=100)
 
     def __str__(self):
@@ -26,6 +27,8 @@ class TeamFantasyTeam(models.Model):
         return self.name
 
 class Game(models.Model):
+    api_game_id = models.IntegerField(default=0)
+    game_number = models.IntegerField(default=0)
     date_start = models.DateField()
     week = models.IntegerField()
     season = models.IntegerField()
