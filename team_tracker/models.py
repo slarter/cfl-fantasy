@@ -32,11 +32,11 @@ class Game(models.Model):
     date_start = models.DateField()
     week = models.IntegerField()
     season = models.IntegerField()
-    home_team = models.ForeignKey(CflTeam, on_delete=models.CASCADE, related_name='home_team')
-    away_team = models.ForeignKey(CflTeam, on_delete=models.CASCADE, related_name='away_team')
+    team_1 = models.ForeignKey(CflTeam, on_delete=models.CASCADE, related_name='team_1')
+    team_2 = models.ForeignKey(CflTeam, on_delete=models.CASCADE, related_name='team_2')
 
     def __str__(self):
-        return f'{self.home_team.name} vs. {self.away_team.name}'
+        return f'{self.team_1.name} vs. {self.team_2.name}'
 
 class Stat(models.Model):
     name = models.CharField(max_length=100)

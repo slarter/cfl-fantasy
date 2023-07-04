@@ -1,8 +1,9 @@
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
+from time import sleep
 import requests
-from team_tracker.models import Game, CflTeam
+from team_tracker.models import Game, CflTeam, Stat, GameStatLog
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
@@ -17,6 +18,7 @@ class Command(BaseCommand):
         last_stored_game_number = Game.objects.filter(season=settings.CFL_season).order_by('-game_number').first()
         r_params = f'sort=-date_start&filter[event_type_id][ne]=0&key={settings.CFL_API_KEY}'
         r = requests.get(f'http://api.cfl.ca/v1/games/{settings.CFL_season}?{r_params}')
+        sleep(2)
 
         games = r.json()
         games = {
@@ -224,30 +226,74 @@ class Command(BaseCommand):
             if game.get('game_number') == last_stored_game_number:
                 break
 
-            api_game_id = game.get('game_id')
-            game_number = game.get('game_number')
-            date_start = game.get('date_start')
-            week = game.get('week')
-            season = game.get('season')
-            team_1 = game.get('team_1')
-            team_2 = game.get('team_2')
-            
-            if bool(team_1.get('is_at_home')):
-                home_team = CflTeam.objects.filter(abbreviation=team_1.get('abbreviation')).first()
-                away_team = CflTeam.objects.filter(abbreviation=team_2.get('abbreviation')).first()
-            else:
-                home_team = CflTeam.objects.filter(abbreviation=team_2.get('abbreviation')).first()
-                away_team = CflTeam.objects.filter(abbreviation=team_1.get('abbreviation')).first()
+            r_params = f'include=boxscore&key={settings.CFL_API_KEY}'
+            r = requests.get(f'http://api.cfl.ca/v1/games/{settings.CFL_season}/game/{game.get("game_id")}?{r_params}')
 
-            Game(
+            api_game_json = r.json()
+            api_game = api_game_json.get('data')
+
+            api_game_id = api_game.get('game_id')
+            game_number = api_game.get('game_number')
+            date_start = api_game.get('date_start')
+            week = api_game.get('week')
+            season = api_game.get('season')
+            team_1 = CflTeam.objects.filter(abbreviation=api_game.get('team_1').get('abbreviation')).first()
+            team_2 = CflTeam.objects.filter(abbreviation=api_game.get('team_2').get('abbreviation')).first()
+
+            db_game = Game(
                 api_game_id = api_game_id,
                 game_number = game_number,
                 date_start = date_start,
                 week = week,
                 season = season,
-                home_team = home_team,
-                away_team = away_team
-            ).save()
-        
-        # save stats
-        
+                team_1 = team_1,
+                team_2 = team_2
+            )
+            db_game.save()
+            
+            # save game stats
+            game_stat_logs = []
+            boxscore = api_game.get('boxscore')
+            for team_num in ['team_1', 'team_2']:
+                team_boxscore = boxscore.get('teams').get(team_num)
+                
+                passing_yards_25 = round(float(team_boxscore.get('passing').get('pass_net_yards')) / 25, 2)
+                rushing_yards_10 = round(float(team_boxscore.get('rushing').get('rush_net_yards')) / 10, 2)
+                receiving_yards_10 = round(float(team_boxscore.get('receiving').get('receive_yards')) / 10, 2)
+                passing_touchdowns = team_boxscore.get('passing').get('pass_touchdowns')
+                rushing_touchdowns = team_boxscore.get('rushing').get('rush_touchdowns')
+                receiving_touchdowns = team_boxscore.get('receiving').get('receive_touchdowns')
+                receptions = team_boxscore.get('receiving').get('receive_caught')
+                return_touchdowns = team_boxscore.get('punt_returns').get('punt_returns_touchdowns') + team_boxscore.get('kick_returns').get('kick_returns_touchdowns')
+                one_point_conversions = team_boxscore.get('converts').get('one_point_converts').get('made')
+                two_point_conversions = team_boxscore.get('converts').get('two_point_converts').get('made')
+                field_goals = team_boxscore.get('field_goals').get('field_goal_made')
+                interceptions_given = team_boxscore.get('turnovers').get('interceptions')
+                fumbles_lost = team_boxscore.get('turnovers').get('fumbles')
+                turnovers_on_downs = team_boxscore.get('turnovers').get('downs')
+                points_allowed_0 = 0
+                points_allowed_1_6 = 0
+                points_allowed_7_13 = 0
+                points_allowed_14_20 = 0
+                points_allowed_21_27 = 0
+                points_allowed_28_34 = 0
+                points_allowed_35_plus = 0
+                sacks = 0
+                interceptions_received = 0
+                fumbles_recovered = 0
+                touchdowns = 0
+                defensive_safeties = 0
+                win = 0
+                loss = 0
+
+                game_stat_logs.append(GameStatLog(
+                    game = db_game,
+                    stat = passing_yards_25,
+                    cfl_team = db_game.team_1 if team_num == 'team_1' else db_game.team_2,
+                    value = passing_yards_25,
+                ))
+
+
+
+
+

@@ -13,8 +13,5 @@ def standings(request):
 
     return render(request, 'team_tracker/standings.html', context)
 
-def load_game_stats_to_db(request):
-    return HttpResponse("Games")
-
 def get_team_points(request):
     return HttpResponse("Points")
