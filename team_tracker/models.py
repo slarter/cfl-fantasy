@@ -10,8 +10,21 @@ class CflTeam(models.Model):
     def __str__(self):
         return self.name
 
+class Game(models.Model):
+    api_game_id = models.IntegerField(default=0)
+    game_number = models.IntegerField(default=0)
+    date_start = models.DateField()
+    week = models.IntegerField()
+    season = models.IntegerField()
+    team_1 = models.ForeignKey(CflTeam, on_delete=models.CASCADE, related_name='team_1')
+    team_2 = models.ForeignKey(CflTeam, on_delete=models.CASCADE, related_name='team_2')
+
+    def __str__(self):
+        return f'{self.team_1.name} vs. {self.team_2.name}'
+
 class TeamFantasyLeague(models.Model):
     name = models.CharField(max_length=100)
+    last_calculated_game = models.ForeignKey(Game, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return self.name
@@ -25,18 +38,6 @@ class TeamFantasyTeam(models.Model):
 
     def __str__(self):
         return self.name
-
-class Game(models.Model):
-    api_game_id = models.IntegerField(default=0)
-    game_number = models.IntegerField(default=0)
-    date_start = models.DateField()
-    week = models.IntegerField()
-    season = models.IntegerField()
-    team_1 = models.ForeignKey(CflTeam, on_delete=models.CASCADE, related_name='team_1')
-    team_2 = models.ForeignKey(CflTeam, on_delete=models.CASCADE, related_name='team_2')
-
-    def __str__(self):
-        return f'{self.team_1.name} vs. {self.team_2.name}'
 
 class Stat(models.Model):
     name = models.CharField(max_length=100)

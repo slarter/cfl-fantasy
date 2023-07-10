@@ -103,7 +103,7 @@ class Command(BaseCommand):
                     ))
             
             logs = GameStatLog.objects.bulk_create(game_stat_logs)
-
-
+        
+    
 
 
