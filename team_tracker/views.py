@@ -13,5 +13,8 @@ def standings(request):
 
     return render(request, 'team_tracker/standings.html', context)
 
-def get_team_points(request):
-    return HttpResponse("Points")
+def info(request):
+    tracked_stats = Stat.objects.all()
+    context = {'tracked_stats': tracked_stats}
+
+    return render(request, 'team_tracker/info.html', context)

@@ -1,0 +1,39 @@
+{% extends "team_tracker/base.html" %}
+
+{% block content %}
+    <header>
+        <h2>General Information</h2>
+    </header>
+    
+    <main>
+        <article>
+            <p>
+                This is the official website for the 2023 Lads CFL Fantasy League.
+                Each of the nine Lads will belong to one fantasy team which is associated with a different CFL Team.
+                When a CFL game is played, we track a list of stats for each team that played.
+                Each recorded stat generates points for the corresponding fantasy team based on its point value
+                The league standings are based on each fantasy team's cumulative points throughout the season. 
+                Heads up, the stats and point values may change throughout the season if there is an 
+                obvious advantage or disadvantage towards certain teams.
+            </p>
+            <br>
+            <h4>Point Breakdown</h4>
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th scope="col">Stat</th>
+                        <th scope="col">Points</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tracked_stat in tracked_stats %}
+                        <tr>
+                            <td>{{ tracked_stat.description }}</td>
+                            <td>{{ tracked_stat.points }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </article>
+    </main>
+{% endblock content %}

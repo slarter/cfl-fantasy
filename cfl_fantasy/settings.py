@@ -30,7 +30,7 @@ CFL_API_KEY = str(getenv('CFL_API_KEY'))
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['django-env.eba-8fk9dnit.us-west-2.elasticbeanstalk.com']
 
 
 # Application definition
